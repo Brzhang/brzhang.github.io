@@ -1,0 +1,496 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
+<head>
+<!-- 2020-12-04 Fri 23:42 -->
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>跨平台开发的一些心得</title>
+<meta name="generator" content="Org mode" />
+<meta name="author" content="Brook Zhang" />
+<style type="text/css">
+ <!--/*--><![CDATA[/*><!--*/
+  .title  { text-align: center;
+             margin-bottom: .2em; }
+  .subtitle { text-align: center;
+              font-size: medium;
+              font-weight: bold;
+              margin-top:0; }
+  .todo   { font-family: monospace; color: red; }
+  .done   { font-family: monospace; color: green; }
+  .priority { font-family: monospace; color: orange; }
+  .tag    { background-color: #eee; font-family: monospace;
+            padding: 2px; font-size: 80%; font-weight: normal; }
+  .timestamp { color: #bebebe; }
+  .timestamp-kwd { color: #5f9ea0; }
+  .org-right  { margin-left: auto; margin-right: 0px;  text-align: right; }
+  .org-left   { margin-left: 0px;  margin-right: auto; text-align: left; }
+  .org-center { margin-left: auto; margin-right: auto; text-align: center; }
+  .underline { text-decoration: underline; }
+  #postamble p, #preamble p { font-size: 90%; margin: .2em; }
+  p.verse { margin-left: 3%; }
+  pre {
+    border: 1px solid #ccc;
+    box-shadow: 3px 3px 3px #eee;
+    padding: 8pt;
+    font-family: monospace;
+    overflow: auto;
+    margin: 1.2em;
+  }
+  pre.src {
+    position: relative;
+    overflow: visible;
+    padding-top: 1.2em;
+  }
+  pre.src:before {
+    display: none;
+    position: absolute;
+    background-color: white;
+    top: -10px;
+    right: 10px;
+    padding: 3px;
+    border: 1px solid black;
+  }
+  pre.src:hover:before { display: inline;}
+  /* Languages per Org manual */
+  pre.src-asymptote:before { content: 'Asymptote'; }
+  pre.src-awk:before { content: 'Awk'; }
+  pre.src-C:before { content: 'C'; }
+  /* pre.src-C++ doesn't work in CSS */
+  pre.src-clojure:before { content: 'Clojure'; }
+  pre.src-css:before { content: 'CSS'; }
+  pre.src-D:before { content: 'D'; }
+  pre.src-ditaa:before { content: 'ditaa'; }
+  pre.src-dot:before { content: 'Graphviz'; }
+  pre.src-calc:before { content: 'Emacs Calc'; }
+  pre.src-emacs-lisp:before { content: 'Emacs Lisp'; }
+  pre.src-fortran:before { content: 'Fortran'; }
+  pre.src-gnuplot:before { content: 'gnuplot'; }
+  pre.src-haskell:before { content: 'Haskell'; }
+  pre.src-hledger:before { content: 'hledger'; }
+  pre.src-java:before { content: 'Java'; }
+  pre.src-js:before { content: 'Javascript'; }
+  pre.src-latex:before { content: 'LaTeX'; }
+  pre.src-ledger:before { content: 'Ledger'; }
+  pre.src-lisp:before { content: 'Lisp'; }
+  pre.src-lilypond:before { content: 'Lilypond'; }
+  pre.src-lua:before { content: 'Lua'; }
+  pre.src-matlab:before { content: 'MATLAB'; }
+  pre.src-mscgen:before { content: 'Mscgen'; }
+  pre.src-ocaml:before { content: 'Objective Caml'; }
+  pre.src-octave:before { content: 'Octave'; }
+  pre.src-org:before { content: 'Org mode'; }
+  pre.src-oz:before { content: 'OZ'; }
+  pre.src-plantuml:before { content: 'Plantuml'; }
+  pre.src-processing:before { content: 'Processing.js'; }
+  pre.src-python:before { content: 'Python'; }
+  pre.src-R:before { content: 'R'; }
+  pre.src-ruby:before { content: 'Ruby'; }
+  pre.src-sass:before { content: 'Sass'; }
+  pre.src-scheme:before { content: 'Scheme'; }
+  pre.src-screen:before { content: 'Gnu Screen'; }
+  pre.src-sed:before { content: 'Sed'; }
+  pre.src-sh:before { content: 'shell'; }
+  pre.src-sql:before { content: 'SQL'; }
+  pre.src-sqlite:before { content: 'SQLite'; }
+  /* additional languages in org.el's org-babel-load-languages alist */
+  pre.src-forth:before { content: 'Forth'; }
+  pre.src-io:before { content: 'IO'; }
+  pre.src-J:before { content: 'J'; }
+  pre.src-makefile:before { content: 'Makefile'; }
+  pre.src-maxima:before { content: 'Maxima'; }
+  pre.src-perl:before { content: 'Perl'; }
+  pre.src-picolisp:before { content: 'Pico Lisp'; }
+  pre.src-scala:before { content: 'Scala'; }
+  pre.src-shell:before { content: 'Shell Script'; }
+  pre.src-ebnf2ps:before { content: 'ebfn2ps'; }
+  /* additional language identifiers per "defun org-babel-execute"
+       in ob-*.el */
+  pre.src-cpp:before  { content: 'C++'; }
+  pre.src-abc:before  { content: 'ABC'; }
+  pre.src-coq:before  { content: 'Coq'; }
+  pre.src-groovy:before  { content: 'Groovy'; }
+  /* additional language identifiers from org-babel-shell-names in
+     ob-shell.el: ob-shell is the only babel language using a lambda to put
+     the execution function name together. */
+  pre.src-bash:before  { content: 'bash'; }
+  pre.src-csh:before  { content: 'csh'; }
+  pre.src-ash:before  { content: 'ash'; }
+  pre.src-dash:before  { content: 'dash'; }
+  pre.src-ksh:before  { content: 'ksh'; }
+  pre.src-mksh:before  { content: 'mksh'; }
+  pre.src-posh:before  { content: 'posh'; }
+  /* Additional Emacs modes also supported by the LaTeX listings package */
+  pre.src-ada:before { content: 'Ada'; }
+  pre.src-asm:before { content: 'Assembler'; }
+  pre.src-caml:before { content: 'Caml'; }
+  pre.src-delphi:before { content: 'Delphi'; }
+  pre.src-html:before { content: 'HTML'; }
+  pre.src-idl:before { content: 'IDL'; }
+  pre.src-mercury:before { content: 'Mercury'; }
+  pre.src-metapost:before { content: 'MetaPost'; }
+  pre.src-modula-2:before { content: 'Modula-2'; }
+  pre.src-pascal:before { content: 'Pascal'; }
+  pre.src-ps:before { content: 'PostScript'; }
+  pre.src-prolog:before { content: 'Prolog'; }
+  pre.src-simula:before { content: 'Simula'; }
+  pre.src-tcl:before { content: 'tcl'; }
+  pre.src-tex:before { content: 'TeX'; }
+  pre.src-plain-tex:before { content: 'Plain TeX'; }
+  pre.src-verilog:before { content: 'Verilog'; }
+  pre.src-vhdl:before { content: 'VHDL'; }
+  pre.src-xml:before { content: 'XML'; }
+  pre.src-nxml:before { content: 'XML'; }
+  /* add a generic configuration mode; LaTeX export needs an additional
+     (add-to-list 'org-latex-listings-langs '(conf " ")) in .emacs */
+  pre.src-conf:before { content: 'Configuration File'; }
+
+  table { border-collapse:collapse; }
+  caption.t-above { caption-side: top; }
+  caption.t-bottom { caption-side: bottom; }
+  td, th { vertical-align:top;  }
+  th.org-right  { text-align: center;  }
+  th.org-left   { text-align: center;   }
+  th.org-center { text-align: center; }
+  td.org-right  { text-align: right;  }
+  td.org-left   { text-align: left;   }
+  td.org-center { text-align: center; }
+  dt { font-weight: bold; }
+  .footpara { display: inline; }
+  .footdef  { margin-bottom: 1em; }
+  .figure { padding: 1em; }
+  .figure p { text-align: center; }
+  .inlinetask {
+    padding: 10px;
+    border: 2px solid gray;
+    margin: 10px;
+    background: #ffffcc;
+  }
+  #org-div-home-and-up
+   { text-align: right; font-size: 70%; white-space: nowrap; }
+  textarea { overflow-x: auto; }
+  .linenr { font-size: smaller }
+  .code-highlighted { background-color: #ffff00; }
+  .org-info-js_info-navigation { border-style: none; }
+  #org-info-js_console-label
+    { font-size: 10px; font-weight: bold; white-space: nowrap; }
+  .org-info-js_search-highlight
+    { background-color: #ffff00; color: #000000; font-weight: bold; }
+  .org-svg { width: 90%; }
+  /*]]>*/-->
+</style>
+<script type="text/javascript">
+/*
+@licstart  The following is the entire license notice for the
+JavaScript code in this tag.
+
+Copyright (C) 2012-2019 Free Software Foundation, Inc.
+
+The JavaScript code in this tag is free software: you can
+redistribute it and/or modify it under the terms of the GNU
+General Public License (GNU GPL) as published by the Free Software
+Foundation, either version 3 of the License, or (at your option)
+any later version.  The code is distributed WITHOUT ANY WARRANTY;
+without even the implied warranty of MERCHANTABILITY or FITNESS
+FOR A PARTICULAR PURPOSE.  See the GNU GPL for more details.
+
+As additional permission under GNU GPL version 3 section 7, you
+may distribute non-source (e.g., minimized or compacted) forms of
+that code without the copy of the GNU GPL normally required by
+section 4, provided you include this license notice and a URL
+through which recipients can access the Corresponding Source.
+
+
+@licend  The above is the entire license notice
+for the JavaScript code in this tag.
+*/
+<!--/*--><![CDATA[/*><!--*/
+ function CodeHighlightOn(elem, id)
+ {
+   var target = document.getElementById(id);
+   if(null != target) {
+     elem.cacheClassElem = elem.className;
+     elem.cacheClassTarget = target.className;
+     target.className = "code-highlighted";
+     elem.className   = "code-highlighted";
+   }
+ }
+ function CodeHighlightOff(elem, id)
+ {
+   var target = document.getElementById(id);
+   if(elem.cacheClassElem)
+     elem.className = elem.cacheClassElem;
+   if(elem.cacheClassTarget)
+     target.className = elem.cacheClassTarget;
+ }
+/*]]>*///-->
+</script>
+</head>
+<body>
+<div id="content">
+<h1 class="title">跨平台开发的一些心得</h1>
+<div id="table-of-contents">
+<h2>Table of Contents</h2>
+<div id="text-table-of-contents">
+<ul>
+<li><a href="#org204e29d">1. 概述</a></li>
+<li><a href="#org756179e">2. Socket</a>
+<ul>
+<li><a href="#org5110fce">2.1. 头文件</a></li>
+<li><a href="#org8939737">2.2. socket变量类型</a></li>
+<li><a href="#orge1797ff">2.3. send 方法</a></li>
+<li><a href="#org08b2201">2.4. socket关闭函数</a></li>
+<li><a href="#orgd3e7ffb">2.5. 设置阻塞/非阻塞</a></li>
+<li><a href="#org890cfab">2.6. 不同的错误码</a></li>
+</ul>
+</li>
+<li><a href="#org4d8966f">3. 获取错误码</a></li>
+<li><a href="#org8d8c882">4. 多线程</a>
+<ul>
+<li><a href="#org775a553">4.1. pthreadVC 库</a></li>
+<li><a href="#org185508a">4.2. CreateThread</a></li>
+<li><a href="#org7650056">4.3. C++ STL</a></li>
+</ul>
+</li>
+<li><a href="#org814a313">5. 时间相关</a></li>
+<li><a href="#org7860a06">6. usleep</a></li>
+<li><a href="#org8bbcb4f">7. Timer</a></li>
+</ul>
+</div>
+</div>
+
+<div id="outline-container-org204e29d" class="outline-2">
+<h2 id="org204e29d"><span class="section-number-2">1</span> 概述</h2>
+<div class="outline-text-2" id="text-1">
+<blockquote>
+<p>
+因为自己平时的主要工作是做SDK开发，涉及到不同平台的开发，主要是有Linux，Windows, Android, iOS 和 MacOS，看着挺多的其实主要分为POSIX阵营和对POSIX支持不算太好的Windows阵营，或者说类Linux阵营和windows阵营。
+工作中跟平台相关的一些特性大体总结为：Socket，多线程相关，时间（高精度），Timer。
+</p>
+</blockquote>
+</div>
+</div>
+<div id="outline-container-org756179e" class="outline-2">
+<h2 id="org756179e"><span class="section-number-2">2</span> Socket</h2>
+<div class="outline-text-2" id="text-2">
+<blockquote>
+<p>
+对于Windows，Socket 需要依赖 Windows下的 Ws2_32.lib库，可以使用 #pragma comment(lib,"Ws2_32") 代码或者在工程中（VS，CMakeLists.txt）配置来告诉编译器对它的链接。
+使用Socket前需要使用WSAStartup来启动Ws2_32.lib，并在停止使用是调用WSACleanup函数。
+Linux就没有这么麻烦了。
+除此之外，大部分接口的使用方式是一致的。下面简单说明一下不同之处：
+</p>
+</blockquote>
+</div>
+<div id="outline-container-org5110fce" class="outline-3">
+<h3 id="org5110fce"><span class="section-number-3">2.1</span> 头文件</h3>
+<div class="outline-text-3" id="text-2-1">
+<blockquote>
+<p>
+Windows下需要依赖winsock.h或winsock2.h, 其中winsock2.h是winsock.h的升级版。
+Linux下则分的细致一些：sys/socket.h, netinet/in.h, unistd.h。
+</p>
+</blockquote>
+</div>
+</div>
+<div id="outline-container-org8939737" class="outline-3">
+<h3 id="org8939737"><span class="section-number-3">2.2</span> socket变量类型</h3>
+<div class="outline-text-3" id="text-2-2">
+<blockquote>
+<p>
+Windows下Socket的变量类型是SOCKET, 通过查看系统定义，我们会发现它本质上是一个unsigned int.
+Linux下用int就可以了，非常符合Linux一切皆描述符的思想。
+</p>
+</blockquote>
+</div>
+</div>
+<div id="outline-container-orge1797ff" class="outline-3">
+<h3 id="orge1797ff"><span class="section-number-3">2.3</span> send 方法</h3>
+<div class="outline-text-3" id="text-2-3">
+<blockquote>
+<p>
+对于send方法的最后一个参数，Windows下一般设置成0即可。
+Linux下则建议设置成MSG_NOSIGNAL, 否则发送出错的话会向系统发送异常信号，如果不处理，则系统会BrokePipe，导致程序异常退出。
+</p>
+</blockquote>
+</div>
+</div>
+<div id="outline-container-org08b2201" class="outline-3">
+<h3 id="org08b2201"><span class="section-number-3">2.4</span> socket关闭函数</h3>
+<div class="outline-text-3" id="text-2-4">
+<blockquote>
+<p>
+windows下用closesocket(SOCKET)函数.
+linux下用close(int)方法.
+通常我们在Windows下写个宏，定义close 为 closesocket.这样Code都不用修改了。
+</p>
+</blockquote>
+</div>
+</div>
+<div id="outline-container-orgd3e7ffb" class="outline-3">
+<h3 id="orgd3e7ffb"><span class="section-number-3">2.5</span> 设置阻塞/非阻塞</h3>
+<div class="outline-text-3" id="text-2-5">
+<blockquote>
+<p>
+Windows下使用 ioctlsocket 方法设置。
+Linux下使用 fcntl 方法。 其函数定义在头文件 fcntl.h 中
+注意：在Windows服务的模式下，Socket在connect前不能设置为nonblok的方式。
+</p>
+</blockquote>
+<div class="org-src-container">
+<pre class="src src-C"><span style="color: #483d8b;">#if</span><span style="color: #483d8b;">n</span><span style="color: #483d8b;">def</span> WIN32
+    <span style="color: #228b22;">int</span> <span style="color: #a0522d;">flags</span> = fcntl(sockfd, F_GETFL, 0);
+    <span style="color: #0000ff;">fcntl</span>(sockfd, F_SETFL, flags | O_NONBLOCK);
+<span style="color: #483d8b;">#else</span>
+    <span style="color: #228b22;">unsigned</span> <span style="color: #228b22;">long</span> <span style="color: #a0522d;">mode</span> = 1;  <span style="color: #b22222;">//</span><span style="color: #b22222;">0 block; &#38750;0 nonblock </span>
+    <span style="color: #0000ff;">ioctlsocket</span>(sockfd, FIONBIO, &amp;mode);
+<span style="color: #483d8b;">#endif</span>
+<span style="color: #b22222;">/////////////////////////////////////////////////////</span>
+<span style="color: #483d8b;">#if</span><span style="color: #483d8b;">n</span><span style="color: #483d8b;">def</span> WIN32
+    <span style="color: #0000ff;">fcntl</span>(sockfd, F_SETFL, flags &amp; (~O_NONBLOCK));
+<span style="color: #483d8b;">#else</span>
+    mode = 0;
+    <span style="color: #0000ff;">ioctlsocket</span>(sockfd, FIONBIO ,&amp;mode);
+<span style="color: #483d8b;">#endif</span>
+</pre>
+</div>
+</div>
+</div>
+
+<div id="outline-container-org890cfab" class="outline-3">
+<h3 id="org890cfab"><span class="section-number-3">2.6</span> 不同的错误码</h3>
+<div class="outline-text-3" id="text-2-6">
+<blockquote>
+<p>
+Linux：EWOULDBLOCK， EAGAIN 等同于 Windows下的 WSAEWOULDBLOCK 和 WSATRY_AGAIN。
+</p>
+</blockquote>
+</div>
+</div>
+</div>
+<div id="outline-container-org4d8966f" class="outline-2">
+<h2 id="org4d8966f"><span class="section-number-2">3</span> 获取错误码</h2>
+<div class="outline-text-2" id="text-3">
+<blockquote>
+<p>
+Windows下用GetLastError来获取错误信息。
+Linux下执行失败的方法，可以用strerror(errno))获取具体的描述。
+</p>
+</blockquote>
+</div>
+</div>
+<div id="outline-container-org8d8c882" class="outline-2">
+<h2 id="org8d8c882"><span class="section-number-2">4</span> 多线程</h2>
+<div class="outline-text-2" id="text-4">
+<blockquote>
+<p>
+Linux下有庞大的多线程库，包括相关的互斥锁和信号量。注意编译时带上pthread库即可。
+对于Windows则可以有多种选择：
+</p>
+</blockquote>
+</div>
+<div id="outline-container-org775a553" class="outline-3">
+<h3 id="org775a553"><span class="section-number-3">4.1</span> pthreadVC 库</h3>
+<div class="outline-text-3" id="text-4-1">
+<blockquote>
+<p>
+是一个在Windows下实现的Linux多线程库的方法。
+</p>
+</blockquote>
+</div>
+</div>
+<div id="outline-container-org185508a" class="outline-3">
+<h3 id="org185508a"><span class="section-number-3">4.2</span> CreateThread</h3>
+<div class="outline-text-3" id="text-4-2">
+<blockquote>
+<p>
+微软提供的一套多线程方法。但是因为和Linux下的多线程方法使用差异明显，不建议使用。这里也不详细展开，有兴趣可以参考官方文档。
+</p>
+</blockquote>
+</div>
+</div>
+<div id="outline-container-org7650056" class="outline-3">
+<h3 id="org7650056"><span class="section-number-3">4.3</span> C++ STL</h3>
+<div class="outline-text-3" id="text-4-3">
+<blockquote>
+<p>
+自从C++11开始，C++ 标准库中增加了多线程的类: std::thread，同时增加了信号量和互斥锁: std::mutex、std::condition_variable，以及一些异步方法。在C++17中更是增加了读写锁，可以很好的满足使用需求和跨平台的需求，推荐这种方法。
+</p>
+</blockquote>
+</div>
+</div>
+</div>
+<div id="outline-container-org814a313" class="outline-2">
+<h2 id="org814a313"><span class="section-number-2">5</span> 时间相关</h2>
+<div class="outline-text-2" id="text-5">
+<blockquote>
+<p>
+  在Linux下，当然使用大名鼎鼎的 gettimeofday() 。
+对于Windows，可以用 GetTickCount() 方法。
+这里还推荐C++ 中chrono中的类和方法，下面有一个小例子：
+</p>
+</blockquote>
+<div class="org-src-container">
+<pre class="src src-C"><span style="color: #228b22;">void</span> <span style="color: #0000ff;">gettimeofday</span>(<span style="color: #a020f0;">struct</span> <span style="color: #228b22;">timeval</span>* <span style="color: #a0522d;">tv</span>)
+{
+    <span style="color: #a020f0;">if</span>( tv != <span style="color: #008b8b;">NULL</span>)
+    {
+        <span style="color: #a020f0;">auto</span> <span style="color: #228b22;">time_now</span> = std::chrono::system_clock::now();
+        std::chrono::system_clock::time_point tp = std::chrono::system_clock::now();
+        <span style="color: #a020f0;">auto</span> <span style="color: #228b22;">duration_in_s</span> = std::chrono::duration_cast&lt;std::chrono::seconds&gt;(time_now.time_since_epoch()).count();
+        <span style="color: #a020f0;">auto</span> <span style="color: #228b22;">duration_in_us</span> = std::chrono::duration_cast&lt;std::chrono::microseconds&gt;(time_now.time_since_epoch()).count();
+
+        tv-&gt;tv_sec = duration_in_s;
+        tv-&gt;tv_usec = duration_in_us;
+    }
+}
+</pre>
+</div>
+</div>
+</div>
+
+<div id="outline-container-org7860a06" class="outline-2">
+<h2 id="org7860a06"><span class="section-number-2">6</span> usleep</h2>
+<div class="outline-text-2" id="text-6">
+<blockquote>
+<p>
+windows下的sleep只能实现到秒，所以可以用类似下面的Code来实现毫秒级别的sleep:
+</p>
+</blockquote>
+<div class="org-src-container">
+<pre class="src src-C"><span style="color: #228b22;">void</span> <span style="color: #0000ff;">usleep</span>(<span style="color: #228b22;">unsigned</span> <span style="color: #228b22;">long</span> <span style="color: #a0522d;">usec</span>)
+{
+    <span style="color: #228b22;">HANDLE</span> <span style="color: #a0522d;">timer</span>;
+    <span style="color: #228b22;">LARGE_INTEGER</span> <span style="color: #a0522d;">interval</span>;
+    interval.QuadPart = (10 * usec);
+
+    timer = CreateWaitableTimer(<span style="color: #008b8b;">NULL</span>, TRUE, <span style="color: #008b8b;">NULL</span>);
+    SetWaitableTimer(timer, &amp;interval, 0, <span style="color: #008b8b;">NULL</span>, <span style="color: #008b8b;">NULL</span>, 0);
+    WaitForSingleObject(timer, INFINITE);
+    CloseHandle(timer);
+}
+</pre>
+</div>
+</div>
+</div>
+
+<div id="outline-container-org8bbcb4f" class="outline-2">
+<h2 id="org8bbcb4f"><span class="section-number-2">7</span> Timer</h2>
+<div class="outline-text-2" id="text-7">
+<blockquote>
+<p>
+开发工作中,我们经常使用Timer来设定一个异步操作,这里涉及到多线程和精确的时间间隔,这里有一个思路是利用C++ STL的多线程和信号量来自研一个可以跨平台的Timer, 利用 std::condition_variable.wait_for()方法来定时启动。
+</p>
+</blockquote>
+</div>
+</div>
+</div>
+<div id="postamble" class="status">
+<p class="date">Date: 2020-12-04</p>
+<p class="author">Author: Brook Zhang</p>
+<p class="date">Created: 2020-12-04 Fri 23:42</p>
+<p class="validation"><a href="http://validator.w3.org/check?uri=referer">Validate</a></p>
+</div>
+</body>
+</html>

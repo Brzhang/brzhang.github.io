@@ -1,0 +1,131 @@
+#+TITLE: 跨平台开发的一些心得
+#+AUTHOR: Brook Zhang
+#+DATE: 2020-12-04
+#+OPTIONS: ^:nil
+
+* 概述
+#+BEGIN_QUOTE
+因为自己平时的主要工作是做SDK开发，涉及到不同平台的开发，主要是有Linux，Windows, Android, iOS 和 MacOS，看着挺多的其实主要分为POSIX阵营和对POSIX支持不算太好的Windows阵营，或者说类Linux阵营和windows阵营。
+工作中跟平台相关的一些特性大体总结为：Socket，多线程相关，时间（高精度），Timer。
+#+END_QUOTE
+* Socket
+#+BEGIN_QUOTE
+  对于Windows，Socket 需要依赖 Windows下的 Ws2_32.lib库，可以使用 #pragma comment(lib,"Ws2_32") 代码或者在工程中（VS，CMakeLists.txt）配置来告诉编译器对它的链接。
+  使用Socket前需要使用WSAStartup来启动Ws2_32.lib，并在停止使用是调用WSACleanup函数。
+  Linux就没有这么麻烦了。
+  除此之外，大部分接口的使用方式是一致的。下面简单说明一下不同之处：
+#+END_QUOTE
+** 头文件
+#+BEGIN_QUOTE
+    Windows下需要依赖winsock.h或winsock2.h, 其中winsock2.h是winsock.h的升级版。
+    Linux下则分的细致一些：sys/socket.h, netinet/in.h, unistd.h。
+#+END_QUOTE
+** socket变量类型
+#+BEGIN_QUOTE
+   Windows下Socket的变量类型是SOCKET, 通过查看系统定义，我们会发现它本质上是一个unsigned int.
+   Linux下用int就可以了，非常符合Linux一切皆描述符的思想。
+#+END_QUOTE
+** send 方法
+#+BEGIN_QUOTE
+   对于send方法的最后一个参数，Windows下一般设置成0即可。
+   Linux下则建议设置成MSG_NOSIGNAL, 否则发送出错的话会向系统发送异常信号，如果不处理，则系统会BrokePipe，导致程序异常退出。
+#+END_QUOTE
+** socket关闭函数
+#+BEGIN_QUOTE
+   windows下用closesocket(SOCKET)函数.
+   linux下用close(int)方法.
+   通常我们在Windows下写个宏，定义close 为 closesocket.这样Code都不用修改了。
+#+END_QUOTE
+** 设置阻塞/非阻塞
+#+BEGIN_QUOTE
+   Windows下使用 ioctlsocket 方法设置。
+   Linux下使用 fcntl 方法。 其函数定义在头文件 fcntl.h 中
+   注意：在Windows服务的模式下，Socket在connect前不能设置为nonblok的方式。
+#+END_QUOTE
+#+BEGIN_SRC C
+#ifndef WIN32
+    int flags = fcntl(sockfd, F_GETFL, 0);
+    fcntl(sockfd, F_SETFL, flags | O_NONBLOCK);
+#else
+    unsigned long mode = 1;  //0 block; 非0 nonblock 
+    ioctlsocket(sockfd, FIONBIO, &mode);
+#endif
+/////////////////////////////////////////////////////
+#ifndef WIN32
+    fcntl(sockfd, F_SETFL, flags & (~O_NONBLOCK));
+#else
+    mode = 0;
+    ioctlsocket(sockfd, FIONBIO ,&mode);
+#endif
+#+END_SRC
+
+** 不同的错误码
+#+BEGIN_QUOTE
+   Linux：EWOULDBLOCK， EAGAIN 等同于 Windows下的 WSAEWOULDBLOCK 和 WSATRY_AGAIN。
+#+END_QUOTE
+* 获取错误码
+#+BEGIN_QUOTE
+  Windows下用GetLastError来获取错误信息。
+  Linux下执行失败的方法，可以用strerror(errno))获取具体的描述。
+#+END_QUOTE
+* 多线程
+#+BEGIN_QUOTE
+  Linux下有庞大的多线程库，包括相关的互斥锁和信号量。注意编译时带上pthread库即可。
+  对于Windows则可以有多种选择：
+#+END_QUOTE
+** pthreadVC 库
+#+BEGIN_QUOTE  
+   是一个在Windows下实现的Linux多线程库的方法。
+#+END_QUOTE
+** CreateThread
+#+BEGIN_QUOTE
+   微软提供的一套多线程方法。但是因为和Linux下的多线程方法使用差异明显，不建议使用。这里也不详细展开，有兴趣可以参考官方文档。
+#+END_QUOTE
+** C++ STL
+#+BEGIN_QUOTE
+   自从C++11开始，C++ 标准库中增加了多线程的类: std::thread，同时增加了信号量和互斥锁: std::mutex、std::condition_variable，以及一些异步方法。在C++17中更是增加了读写锁，可以很好的满足使用需求和跨平台的需求，推荐这种方法。
+#+END_QUOTE
+* 时间相关
+#+BEGIN_QUOTE
+    在Linux下，当然使用大名鼎鼎的 gettimeofday() 。
+  对于Windows，可以用 GetTickCount() 方法。
+  这里还推荐C++ 中chrono中的类和方法，下面有一个小例子：
+#+END_QUOTE
+#+BEGIN_SRC C
+void gettimeofday(struct timeval* tv)
+{
+    if( tv != NULL)
+    {
+        auto time_now = std::chrono::system_clock::now();
+        std::chrono::system_clock::time_point tp = std::chrono::system_clock::now();
+        auto duration_in_s = std::chrono::duration_cast<std::chrono::seconds>(time_now.time_since_epoch()).count();
+        auto duration_in_us = std::chrono::duration_cast<std::chrono::microseconds>(time_now.time_since_epoch()).count();
+
+        tv->tv_sec = duration_in_s;
+        tv->tv_usec = duration_in_us;
+    }
+}
+#+END_SRC
+
+* usleep
+#+BEGIN_QUOTE
+  windows下的sleep只能实现到秒，所以可以用类似下面的Code来实现毫秒级别的sleep:
+#+END_QUOTE
+#+BEGIN_SRC C
+void usleep(unsigned long usec)
+{
+    HANDLE timer;
+    LARGE_INTEGER interval;
+    interval.QuadPart = (10 * usec);
+
+    timer = CreateWaitableTimer(NULL, TRUE, NULL);
+    SetWaitableTimer(timer, &interval, 0, NULL, NULL, 0);
+    WaitForSingleObject(timer, INFINITE);
+    CloseHandle(timer);
+}
+#+END_SRC
+
+* Timer
+#+BEGIN_QUOTE
+  开发工作中,我们经常使用Timer来设定一个异步操作,这里涉及到多线程和精确的时间间隔,这里有一个思路是利用C++ STL的多线程和信号量来自研一个可以跨平台的Timer, 利用 std::condition_variable.wait_for()方法来定时启动。
+#+END_QUOTE
